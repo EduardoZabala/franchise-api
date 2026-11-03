@@ -34,12 +34,23 @@ public record Branch(String id, String name, List<Product> products) {
         if (product == null) {
             throw new BusinessException(BusinessMessage.BRANCH_PRODUCT_REQUIRED);
         }
-        if (hasProductNamed(product.name())) {
-            throw new BusinessException(BusinessMessage.BRANCH_PRODUCT_ALREADY_EXISTS);
-        }
+        ensureNameIsAvailable(product);
         List<Product> updated = new ArrayList<>(products);
         updated.add(product);
         return new Branch(id, name, updated);
+    }
+
+    /**
+     * Renames one of the branch products, keeping product names unique within the branch.
+     *
+     * @return the renamed product
+     */
+    public Product renameProduct(String productId, String newName) {
+        Product renamed = findProduct(productId)
+                .orElseThrow(() -> new BusinessException(BusinessMessage.PRODUCT_NOT_FOUND))
+                .rename(newName);
+        ensureNameIsAvailable(renamed);
+        return renamed;
     }
 
     public Optional<Product> findProduct(String productId) {
@@ -56,8 +67,12 @@ public record Branch(String id, String name, List<Product> products) {
                 .reduce((current, candidate) -> candidate.stock() > current.stock() ? candidate : current);
     }
 
-    private boolean hasProductNamed(String productName) {
-        return products.stream()
-                .anyMatch(existing -> existing.name().equalsIgnoreCase(productName));
+    private void ensureNameIsAvailable(Product candidate) {
+        boolean taken = products.stream()
+                .anyMatch(other -> !other.id().equals(candidate.id())
+                        && other.name().equalsIgnoreCase(candidate.name()));
+        if (taken) {
+            throw new BusinessException(BusinessMessage.BRANCH_PRODUCT_ALREADY_EXISTS);
+        }
     }
 }

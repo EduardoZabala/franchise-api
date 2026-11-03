@@ -101,6 +101,37 @@ class FranchiseTest {
     }
 
     @Nested
+    @DisplayName("renameBranch")
+    class RenameBranch {
+
+        private final Branch centro = new Branch("b-1", "Centro", List.of(Product.create("Papas", 1)));
+        private final Branch norte = new Branch("b-2", "Norte", List.of());
+        private final Franchise franchise = new Franchise("f-1", "Burger House", List.of(centro, norte));
+
+        @Test
+        void shouldReturnRenamedBranchKeepingItsProducts() {
+            assertThat(franchise.renameBranch("b-1", "Sur"))
+                    .isEqualTo(new Branch("b-1", "Sur", centro.products()));
+        }
+
+        @Test
+        void shouldAllowChangingCaseOfItsOwnName() {
+            assertThat(franchise.renameBranch("b-1", "CENTRO").name()).isEqualTo("CENTRO");
+        }
+
+        @Test
+        void shouldRejectNameUsedByAnotherBranch() {
+            assertBusinessError(() -> franchise.renameBranch("b-1", "norte"),
+                    BusinessMessage.FRANCHISE_BRANCH_ALREADY_EXISTS);
+        }
+
+        @Test
+        void shouldRejectUnknownBranch() {
+            assertBusinessError(() -> franchise.renameBranch("unknown", "Sur"), BusinessMessage.BRANCH_NOT_FOUND);
+        }
+    }
+
+    @Nested
     @DisplayName("addBranch")
     class AddBranch {
 

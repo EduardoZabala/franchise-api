@@ -32,16 +32,33 @@ public record Franchise(String id, String name, List<Branch> branches) {
         if (branch == null) {
             throw new BusinessException(BusinessMessage.FRANCHISE_BRANCH_REQUIRED);
         }
-        if (hasBranchNamed(branch.name())) {
-            throw new BusinessException(BusinessMessage.FRANCHISE_BRANCH_ALREADY_EXISTS);
-        }
+        ensureNameIsAvailable(branch);
         List<Branch> updated = new ArrayList<>(branches);
         updated.add(branch);
         return new Franchise(id, name, updated);
     }
 
-    private boolean hasBranchNamed(String branchName) {
-        return branches.stream()
-                .anyMatch(existing -> existing.name().equalsIgnoreCase(branchName));
+    /**
+     * Renames one of the franchise branches, keeping branch names unique within the franchise.
+     *
+     * @return the renamed branch
+     */
+    public Branch renameBranch(String branchId, String newName) {
+        Branch renamed = branches.stream()
+                .filter(branch -> branch.id().equals(branchId))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(BusinessMessage.BRANCH_NOT_FOUND))
+                .rename(newName);
+        ensureNameIsAvailable(renamed);
+        return renamed;
+    }
+
+    private void ensureNameIsAvailable(Branch candidate) {
+        boolean taken = branches.stream()
+                .anyMatch(other -> !other.id().equals(candidate.id())
+                        && other.name().equalsIgnoreCase(candidate.name()));
+        if (taken) {
+            throw new BusinessException(BusinessMessage.FRANCHISE_BRANCH_ALREADY_EXISTS);
+        }
     }
 }

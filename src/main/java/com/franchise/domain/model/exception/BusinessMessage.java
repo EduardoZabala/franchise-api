@@ -8,16 +8,19 @@ public enum BusinessMessage {
     PRODUCT_ID_REQUIRED("PRD-001", "Product id must not be blank"),
     PRODUCT_NAME_REQUIRED("PRD-002", "Product name must not be blank"),
     PRODUCT_STOCK_NEGATIVE("PRD-003", "Product stock must not be negative"),
+    PRODUCT_NOT_FOUND("PRD-004", "Product not found"),
 
-    FRANCHISE_ID_REQUIRED("FRN-001","Franchise id must not be blank"),
-    FRANCHISE_NAME_REQUIRED("FRN-002","Franchise name must not be blank"),
-    FRANCHISE_BRANCH_REQUIRED("FRN-003","Branch to add must not be null"),
-    FRANCHISE_BRANCH_ALREADY_EXISTS("FRN-004","A branch with the same name already exists in the franchise"),
+    FRANCHISE_ID_REQUIRED("FRN-001", "Franchise id must not be blank"),
+    FRANCHISE_NAME_REQUIRED("FRN-002", "Franchise name must not be blank"),
+    FRANCHISE_BRANCH_REQUIRED("FRN-003", "Branch to add must not be null"),
+    FRANCHISE_BRANCH_ALREADY_EXISTS("FRN-004", "A branch with the same name already exists in the franchise"),
+    FRANCHISE_NOT_FOUND("FRN-005", "Franchise not found"),
 
     BRANCH_ID_REQUIRED("BRN-001", "Branch id must not be blank"),
     BRANCH_NAME_REQUIRED("BRN-002", "Branch name must not be blank"),
     BRANCH_PRODUCT_REQUIRED("BRN-003", "Product to add must not be null"),
-    BRANCH_PRODUCT_ALREADY_EXISTS("BRN-004", "A product with the same name already exists in the branch");
+    BRANCH_PRODUCT_ALREADY_EXISTS("BRN-004", "A product with the same name already exists in the branch"),
+    BRANCH_NOT_FOUND("BRN-005", "Branch not found");
 
     private final String code;
     private final String message;
