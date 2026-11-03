@@ -1,0 +1,47 @@
+# Local environment: API + DynamoDB (emulated by LocalStack).
+# Usage: docker compose up --build   (or: podman compose up --build)
+#
+# Works without any setup. To customize, copy .env.example to .env and edit it:
+# compose reads .env automatically and every variable below has a default.
+
+services:
+  localstack:
+    image: docker.io/localstack/localstack:4.9
+    container_name: franchise-localstack
+    ports:
+      - "${LOCALSTACK_PORT:-4566}:4566"
+    environment:
+      SERVICES: dynamodb
+      AWS_DEFAULT_REGION: ${AWS_REGION:-us-east-1}
+      DYNAMODB_TABLE_NAME: ${DYNAMODB_TABLE_NAME:-franchises}
+    volumes:
+      - ./docker/localstack/init-dynamodb.sh:/etc/localstack/init/ready.d/init-dynamodb.sh:ro,Z
+    healthcheck:
+      # Healthy only once the table exists, so the API never starts without it.
+      test: ["CMD-SHELL", "awslocal dynamodb describe-table --table-name $${DYNAMODB_TABLE_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  franchise-api:
+    build: .
+    image: franchise-api:latest
+    container_name: franchise-api
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+      DYNAMODB_ENDPOINT: http://localstack:4566
+      DYNAMODB_TABLE_NAME: ${DYNAMODB_TABLE_NAME:-franchises}
+    depends_on:
+      localstack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
