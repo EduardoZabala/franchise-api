@@ -41,3 +41,11 @@ PRUEBA DESARROLLADOR BACKEND ACCENTURE.pdf
 
 ### Environment ###
 .env
+
+### Terraform ###
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+terraform.tfvars
+crash.log
