@@ -102,6 +102,37 @@ class BranchTest {
     }
 
     @Nested
+    @DisplayName("renameProduct")
+    class RenameProduct {
+
+        private final Product papas = new Product("p-1", "Papas", 10);
+        private final Product gaseosa = new Product("p-2", "Gaseosa", 5);
+        private final Branch branch = new Branch("b-1", "Centro", List.of(papas, gaseosa));
+
+        @Test
+        void shouldReturnRenamedProduct() {
+            assertThat(branch.renameProduct("p-1", "Papas fritas"))
+                    .isEqualTo(new Product("p-1", "Papas fritas", 10));
+        }
+
+        @Test
+        void shouldAllowChangingCaseOfItsOwnName() {
+            assertThat(branch.renameProduct("p-1", "PAPAS").name()).isEqualTo("PAPAS");
+        }
+
+        @Test
+        void shouldRejectNameUsedByAnotherProduct() {
+            assertBusinessError(() -> branch.renameProduct("p-1", "gaseosa"),
+                    BusinessMessage.BRANCH_PRODUCT_ALREADY_EXISTS);
+        }
+
+        @Test
+        void shouldRejectUnknownProduct() {
+            assertBusinessError(() -> branch.renameProduct("unknown", "Helado"), BusinessMessage.PRODUCT_NOT_FOUND);
+        }
+    }
+
+    @Nested
     @DisplayName("productWithMostStock")
     class ProductWithMostStock {
 
