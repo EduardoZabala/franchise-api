@@ -57,3 +57,9 @@ variable "create_github_oidc_provider" {
   type        = bool
   default     = true
 }
+
+variable "github_environment" {
+  description = "GitHub Actions environment used by the deploy job; only jobs in it may assume the deploy role."
+  type        = string
+  default     = "production"
+}

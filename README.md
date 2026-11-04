@@ -351,7 +351,7 @@ Recursos creados por Terraform (`infra/terraform`):
 | `ecr.tf` | Repositorio de imágenes con política de retención (últimas 10) |
 | `ecs.tf` | Cluster, task definition, service Fargate, security group, log group |
 | `iam.tf` | Rol de ejecución de ECS y rol de la aplicación con permisos mínimos sobre su tabla |
-| `github-oidc.tf` | Proveedor OIDC de GitHub y rol de despliegue (solo la rama `main` puede desplegar) |
+| `github-oidc.tf` | Proveedor OIDC de GitHub y rol de despliegue (solo el environment `production`, restringido a `main`, puede desplegar) |
 
 La aplicación obtiene credenciales del **rol IAM de la tarea**: no hay access keys en el código, la imagen ni GitHub.
 

@@ -28,11 +28,13 @@ data "aws_iam_policy_document" "github_assume" {
       values   = ["sts.amazonaws.com"]
     }
 
-    # Only pushes to main of this repository can deploy.
+    # The deploy job runs in the "production" GitHub environment, so the token's
+    # subject is environment-based (not ref-based). Restrict that environment to
+    # the main branch in GitHub (Settings > Environments > production).
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:ref:refs/heads/main"]
+      values   = ["repo:${var.github_repository}:environment:${var.github_environment}"]
     }
   }
 }
